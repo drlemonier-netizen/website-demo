@@ -1,136 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feature-Rich Canvas Website</title>
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { overflow: hidden; background: #111; color: #fff; }
-    canvas { display: block; }
-    .ui-panel {
-        position: absolute; top: 20px; left: 20px;
-        background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px;
-        max-width: 300px;
-    }
-    .ui-panel button { margin-top: 10px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
-    .toggle-btn { position: absolute; top: 20px; right: 20px; padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCA | Student Center</title>
+    <style>
+        /* ======================================== */
+        /* Reset and base styles */
+        /* ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            background: #f9f9f9;
+            color: #111;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ======================================== */
+        /* Navbar */
+        /* ======================================== */
+        header {
+            background: #fff;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0070f3;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        nav ul li {
+            transition: 0.3s;
+        }
+
+        nav ul li:hover {
+            color: #0070f3;
+        }
+
+        /* ======================================== */
+        /* Hero Section */
+        /* ======================================== */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0070f3 0%, #00d1ff 100%);
+            color: #fff;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+        }
+
+        .hero button {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #0070f3;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .hero button:hover {
+            background: #0070f3;
+            color: #fff;
+        }
+
+        /* ======================================== */
+        /* Sections */
+        /* ======================================== */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #0070f3;
+        }
+
+        /* Subjects grid */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .subject-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .subject-card h3 {
+            margin-bottom: 1rem;
+            color: #0070f3;
+        }
+
+        /* Canvas Section */
+        #canvas-container {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            height: 400px;
+        }
+
+        /* Footer */
+        footer {
+            background: #111;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer a {
+            color: #0070f3;
+        }
+
+        /* Responsive */
+        @media(max-width:768px){
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
-<div class="ui-panel">
-    <h3>Interactive Panel</h3>
-    <p id="info">Click balls to increase score: 0</p>
-    <button id="addBall">Add Ball</button>
-</div>
-<button class="toggle-btn" id="toggleMode">Toggle Light/Dark Mode</button>
+
+<header>
+    <div class="nav-container">
+        <div class="logo">GCA | Student Center</div>
+        <nav>
+            <ul>
+                <li><a href="#grades">Grades</a></li>
+                <li><a href="#subjects">Subjects</a></li>
+                <li><a href="#canvas">Interactive</a></li>
+                <li><a href="#resources">Resources</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>Welcome to GCA Student Center</h1>
+    <p>Your one-stop platform for studying, learning, and exploring knowledge for all grades. Interactive, modern, and easy to use.</p>
+    <button onclick="document.getElementById('canvas').scrollIntoView({ behavior: 'smooth' })">Start Studying</button>
+</section>
+
+<section id="grades">
+    <h2 class="section-title">Grades</h2>
+    <div class="subjects-grid">
+        <div class="subject-card"><h3>PreK</h3><p>Fun learning activities for little ones.</p></div>
+        <div class="subject-card"><h3>Elementary</h3><p>Core subjects with interactive tools.</p></div>
+        <div class="subject-card"><h3>Middle School</h3><p>Critical thinking & logic exercises.</p></div>
+        <div class="subject-card"><h3>High School</h3><p>Advanced topics & study resources.</p></div>
+    </div>
+</section>
+
+<section id="subjects">
+    <h2 class="section-title">Subjects</h2>
+    <div class="subjects-grid">
+        <div class="subject-card"><h3>Math</h3><p>Interactive lessons and exercises.</p></div>
+        <div class="subject-card"><h3>Science</h3><p>Experiments, videos, and study guides.</p></div>
+        <div class="subject-card"><h3>English</h3><p>Reading comprehension & writing tips.</p></div>
+        <div class="subject-card"><h3>History</h3><p>Timeline explorations & facts.</p></div>
+        <div class="subject-card"><h3>Art</h3><p>Canvas practice & inspiration.</p></div>
+    </div>
+</section>
+
+<section id="canvas">
+    <h2 class="section-title">Interactive Canvas</h2>
+    <div id="canvas-container">
+        <canvas id="studyCanvas"></canvas>
+    </div>
+</section>
+
+<section id="resources">
+    <h2 class="section-title">Resources</h2>
+    <div class="subjects-grid">
+        <div class="subject-card"><h3>Homework Help</h3><p>Step-by-step guides for solving problems.</p></div>
+        <div class="subject-card"><h3>Study Guides</h3><p>Downloadable resources for all grades.</p></div>
+        <div class="subject-card"><h3>Notes</h3><p>Organize your personal notes online.</p></div>
+        <div class="subject-card"><h3>Quizzes</h3><p>Interactive quizzes to test knowledge.</p></div>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2025 GCA Student Center | <a href="https://graceclassical.org">Grace Classical Academy</a></p>
+</footer>
+
 <script>
-const canvas = document.getElementById('canvas');
+// ========================================
+// Canvas JS
+// ========================================
+const canvas = document.getElementById('studyCanvas');
 const ctx = canvas.getContext('2d');
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
 
-// Mode Toggle
-let darkMode = true;
-document.getElementById('toggleMode').addEventListener('click', () => {
-    darkMode = !darkMode;
-    document.body.style.background = darkMode ? '#111' : '#f0f0f0';
-    document.body.style.color = darkMode ? '#fff' : '#111';
-});
-
-// Particle Background
-class Particle {
-    constructor(){
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random()-0.5)*1.5;
-        this.vy = (Math.random()-0.5)*1.5;
-        this.size = Math.random()*3+1;
-    }
-    draw(){
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-        ctx.fillStyle = darkMode ? '#fff' : '#111';
-        ctx.fill();
-    }
-    update(){
-        this.x += this.vx;
-        this.y += this.vy;
-        if(this.x<0||this.x>width) this.vx*=-1;
-        if(this.y<0||this.y>height) this.vy*=-1;
-    }
+// Resize canvas
+function resizeCanvas(){
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
 }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-let particles = [];
-for(let i=0;i<100;i++) particles.push(new Particle());
+// Drawing variables
+let drawing = false;
+let lastX = 0;
+let lastY = 0;
 
-// Balls (Mini Game)
-class Ball {
-    constructor(){
-        this.x = Math.random()*width;
-        this.y = Math.random()*height;
-        this.vx = (Math.random()-0.5)*5;
-        this.vy = (Math.random()-0.5)*5;
-        this.radius = 20;
-        this.color = `hsl(${Math.random()*360},70%,50%)`;
-    }
-    draw(){
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-    }
-    update(){
-        this.x += this.vx;
-        this.y += this.vy;
-        if(this.x-this.radius<0||this.x+this.radius>width) this.vx*=-1;
-        if(this.y-this.radius<0||this.y+this.radius>height) this.vy*=-1;
-    }
-}
-
-let balls = [new Ball()];
-let score = 0;
-document.getElementById('addBall').addEventListener('click', ()=>{ balls.push(new Ball()); });
-
-canvas.addEventListener('click', (e)=>{
-    balls.forEach(ball=>{
-        let dx = e.clientX-ball.x;
-        let dy = e.clientY-ball.y;
-        if(Math.sqrt(dx*dx+dy*dy)<ball.radius){ score++; document.getElementById('info').innerText = 'Click balls to increase score: ' + score; }
-    });
+canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
 });
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseout', () => drawing = false);
+canvas.addEventListener('mousemove', draw);
 
-// Draggable Circle
-let dragCircle = {x:width/2, y:height/2, r:30, dragging:false};
-canvas.addEventListener('mousedown', e=>{
-    let dx = e.clientX - dragCircle.x;
-    let dy = e.clientY - dragCircle.y;
-    if(Math.sqrt(dx*dx+dy*dy)<dragCircle.r) dragCircle.dragging=true;
-});
-canvas.addEventListener('mouseup', ()=>dragCircle.dragging=false);
-canvas.addEventListener('mousemove', e=>{
-    if(dragCircle.dragging){ dragCircle.x = e.clientX; dragCircle.y = e.clientY; }
-});
+function draw(e){
+    if(!drawing) return;
+    ctx.strokeStyle = '#0070f3';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
-// Animate
-function animate(){
-    ctx.clearRect(0,0,width,height);
-    particles.forEach(p=>{ p.update(); p.draw(); });
-    balls.forEach(b=>{ b.update(); b.draw(); });
-    // Draw draggable circle
     ctx.beginPath();
-    ctx.arc(dragCircle.x, dragCircle.y, dragCircle.r, 0, Math.PI*2);
-    ctx.fillStyle = darkMode ? 'rgba(255,0,0,0.7)' : 'rgba(255,0,0,0.7)';
-    ctx.fill();
-    requestAnimationFrame(animate);
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    lastX = e.offsetX;
+    lastY = e.offsetY;
 }
-animate();
 
-window.addEventListener('resize', ()=>{
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-});
+// Clear canvas function
+function clearCanvas(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 </script>
+
 </body>
 </html>
