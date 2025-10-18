@@ -1,11 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feature-Rich Canvas Website</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { overflow: hidden; background: #111; color: #fff; }
+    canvas { display: block; }
+    .ui-panel {
+        position: absolute; top: 20px; left: 20px;
+        background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px;
+        max-width: 300px;
+    }
+    .ui-panel button { margin-top: 10px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+    .toggle-btn { position: absolute; top: 20px; right: 20px; padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; }
+</style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
+<canvas id="canvas"></canvas>
+<div class="ui-panel">
+    <h3>Interactive Panel</h3>
+    <p id="info">Click balls to increase score: 0</p>
+    <button id="addBall">Add Ball</button>
+</div>
+<button class="toggle-btn" id="toggleMode">Toggle Light/Dark Mode</button>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+// Mode Toggle
+let darkMode = true;
+document.getElementById('toggleMode').addEventListener('click', () => {
+    darkMode = !darkMode;
+    document.body.style.background = darkMode ? '#111' : '#f0f0f0';
+    document.body.style.color = darkMode ? '#fff' : '#111';
+});
+
+// Particle Background
+class Particle {
+    constructor(){
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random()-0.5)*1.5;
+        this.vy = (Math.random()-0.5)*1.5;
+        this.size = Math.random()*3+1;
+    }
+    draw(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+        ctx.fillStyle = darkMode ? '#fff' : '#111';
+        ctx.fill();
+    }
+    update(){
+        this.x += this.vx;
+        this.y += this.vy;
+        if(this.x<0||this.x>width) this.vx*=-1;
+        if(this.y<0||this.y>height) this.vy*=-1;
+    }
+}
+
+let particles = [];
+for(let i=0;i<100;i++) particles.push(new Particle());
+
+// Balls (Mini Game)
+class Ball {
+    constructor(){
+        this.x = Math.random()*width;
+        this.y = Math.random()*height;
+        this.vx = (Math.random()-0.5)*5;
+        this.vy = (Math.random()-0.5)*5;
+        this.radius = 20;
+        this.color = `hsl(${Math.random()*360},70%,50%)`;
+    }
+    draw(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+    update(){
+        this.x += this.vx;
+        this.y += this.vy;
+        if(this.x-this.radius<0||this.x+this.radius>width) this.vx*=-1;
+        if(this.y-this.radius<0||this.y+this.radius>height) this.vy*=-1;
+    }
+}
+
+let balls = [new Ball()];
+let score = 0;
+document.getElementById('addBall').addEventListener('click', ()=>{ balls.push(new Ball()); });
+
+canvas.addEventListener('click', (e)=>{
+    balls.forEach(ball=>{
+        let dx = e.clientX-ball.x;
+        let dy = e.clientY-ball.y;
+        if(Math.sqrt(dx*dx+dy*dy)<ball.radius){ score++; document.getElementById('info').innerText = 'Click balls to increase score: ' + score; }
+    });
+});
+
+// Draggable Circle
+let dragCircle = {x:width/2, y:height/2, r:30, dragging:false};
+canvas.addEventListener('mousedown', e=>{
+    let dx = e.clientX - dragCircle.x;
+    let dy = e.clientY - dragCircle.y;
+    if(Math.sqrt(dx*dx+dy*dy)<dragCircle.r) dragCircle.dragging=true;
+});
+canvas.addEventListener('mouseup', ()=>dragCircle.dragging=false);
+canvas.addEventListener('mousemove', e=>{
+    if(dragCircle.dragging){ dragCircle.x = e.clientX; dragCircle.y = e.clientY; }
+});
+
+// Animate
+function animate(){
+    ctx.clearRect(0,0,width,height);
+    particles.forEach(p=>{ p.update(); p.draw(); });
+    balls.forEach(b=>{ b.update(); b.draw(); });
+    // Draw draggable circle
+    ctx.beginPath();
+    ctx.arc(dragCircle.x, dragCircle.y, dragCircle.r, 0, Math.PI*2);
+    ctx.fillStyle = darkMode ? 'rgba(255,0,0,0.7)' : 'rgba(255,0,0,0.7)';
+    ctx.fill();
+    requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener('resize', ()=>{
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>
